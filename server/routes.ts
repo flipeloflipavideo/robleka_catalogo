@@ -50,6 +50,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const products = await storage.getProducts(filters);
       res.json(products);
     } catch (error) {
+      console.error("Error fetching products:", error);
       res.status(500).json({ message: "Error fetching products" });
     }
   });
