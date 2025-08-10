@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Palette, Settings } from "lucide-react";
+import { ModeToggle } from "./theme-toggle";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,7 +11,7 @@ export default function Layout({ children }: LayoutProps) {
   const [location] = useLocation();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-navy">
       {/* Header Navigation */}
       <header className="gradient-bg shadow-lg sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
@@ -22,14 +23,17 @@ export default function Layout({ children }: LayoutProps) {
               <h1 className="text-white font-poppins font-bold text-2xl">ROBLEKA Diseños</h1>
             </Link>
             
-            <nav className="hidden md:flex items-center space-x-6">
+            <nav className="hidden md:flex items-center space-x-4">
               <Link href="/">
                 <span className={`text-white hover:text-lavender transition-colors font-medium ${location === "/" ? "text-lavender" : ""}`}>
                   Catálogo
                 </span>
               </Link>
+
+              <ModeToggle />
+
               <Link href="/admin">
-                <Button variant="outline" className="bg-white text-deep-blue border-white hover:bg-lavender hover:text-white hover:border-lavender transition-all">
+                <Button variant="outline">
                   <Settings className="mr-2" size={16} />
                   Admin
                 </Button>
@@ -47,3 +51,4 @@ export default function Layout({ children }: LayoutProps) {
     </div>
   );
 }
+
