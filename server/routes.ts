@@ -17,7 +17,7 @@ const bufferToDataURI = (buffer: Buffer, mimeType: string) => {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Secret endpoint to run database migrations
-  app.post("/api/migrate", async (req, res) => {
+  app.get("/api/migrate", async (req, res) => {
     if (req.query.secret !== process.env.MIGRATE_SECRET) {
       return res.status(401).send("Unauthorized");
     }
