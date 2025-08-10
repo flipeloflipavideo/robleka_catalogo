@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { exec } from "child_process";
 import { storage } from "./storage";
 import { insertProductSchema, updateProductSchema } from "@shared/schema";
 import { z } from "zod";
@@ -15,6 +16,24 @@ const bufferToDataURI = (buffer: Buffer, mimeType: string) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Secret endpoint to run database migrations
+  app.post("/api/migrate", async (req, res) => {
+    if (req.query.secret !== process.env.MIGRATE_SECRET) {
+      return res.status(401).send("Unauthorized");
+    }
+
+    const migrateProcess = exec("npm run db:migrate", (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Migration error: ${error}`);
+        return res.status(500).send(`Migration failed: ${error.message}`);
+      }
+      if (stderr) {
+        console.log(`Migration stderr: ${stderr}`);
+      }
+      res.send(`Migration output: ${stdout}`);
+    });
+  });
+
   // Image Upload Endpoint
   app.post("/api/upload", upload.single('file'), async (req, res) => {
     try {
