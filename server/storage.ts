@@ -55,13 +55,17 @@ export class DbStorage implements IStorage {
       }
     }
 
-    const qb = db.select().from(products);
-    if (conditions.length > 0) {
-      qb.where(and(...conditions));
-    }
-    qb.orderBy(sql`${products.views} desc`);
+    // Start query builder
+    let query = db.select().from(products);
 
-    return await qb;
+    // Conditionally apply where clause
+    if (conditions.length > 0) {
+      // Re-assign the query builder instance after applying the where clause
+      query = query.where(and(...conditions));
+    }
+
+    // Return the final query with ordering
+    return await query.orderBy(sql`${products.views} desc`);
   }
 
   async getProduct(id: string): Promise<Product | undefined> {
