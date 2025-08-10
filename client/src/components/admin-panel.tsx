@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trash2, Edit, Copy, Plus } from "lucide-react";
+import { Trash2, Edit, Copy, Plus, UploadCloud, X } from "lucide-react";
 import { insertProductSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -20,6 +20,7 @@ export default function AdminPanel() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["/api/products"],
@@ -77,12 +78,11 @@ export default function AdminPanel() {
   });
 
   const onSubmit = (data: InsertProduct) => {
-    // Convert comma-separated strings to arrays
     const processedData = {
       ...data,
       tags: typeof data.tags === 'string' ? (data.tags as string).split(',').map(s => s.trim()) : data.tags,
       colors: typeof data.colors === 'string' ? (data.colors as string).split(',').map(s => s.trim()) : data.colors,
-      images: typeof data.images === 'string' ? (data.images as string).split(',').map(s => s.trim()) : data.images,
+      images: data.images, // Images are now an array of URLs, no processing needed
     };
 
     if (editingProduct) {
@@ -90,6 +90,48 @@ export default function AdminPanel() {
     } else {
       createMutation.mutate(processedData);
     }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    const uploadedUrls = form.getValues("images") || [];
+
+    for (const file of files) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) {
+          throw new Error("Upload failed");
+        }
+
+        const { url } = await res.json();
+        uploadedUrls.push(url);
+      } catch (error) {
+        toast({
+          title: `Error al subir ${file.name}`,
+          description: "Inténtalo de nuevo.",
+          variant: "destructive",
+        });
+        break; // Stop on first error
+      }
+    }
+
+    form.setValue("images", uploadedUrls, { shouldValidate: true });
+    setIsUploading(false);
+  };
+
+  const handleRemoveImage = (urlToRemove: string) => {
+    const currentImages = form.getValues("images") || [];
+    form.setValue("images", currentImages.filter(url => url !== urlToRemove), { shouldValidate: true });
   };
 
   const handleEdit = (product: Product) => {
@@ -244,14 +286,32 @@ export default function AdminPanel() {
                   </div>
                 </div>
 
+                {/* NEW IMAGE UPLOAD FIELD */}
                 <div>
-                  <Label htmlFor="images">URLs de Imágenes (separadas por comas)</Label>
-                  <Textarea
-                    id="images"
-                    {...form.register("images")}
-                    placeholder="https://ejemplo.com/imagen1.jpg, https://ejemplo.com/imagen2.jpg"
-                    rows={2}
-                  />
+                  <Label htmlFor="image-upload">Imágenes del Producto</Label>
+                  <div className="mt-2 flex items-center justify-center w-full">
+                    <label htmlFor="image-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <UploadCloud className="w-8 h-8 mb-2 text-gray-500" />
+                        <p className="mb-2 text-sm text-gray-500">
+                          <span className="font-semibold">Haz clic para subir</span> o arrastra y suelta
+                        </p>
+                        <p className="text-xs text-gray-500">SVG, PNG, JPG or GIF</p>
+                      </div>
+                      <Input id="image-upload" type="file" className="hidden" multiple onChange={handleImageUpload} disabled={isUploading} />
+                    </label>
+                  </div>
+                  {isUploading && <p className="text-sm text-blue-600 mt-2">Subiendo imágenes, por favor espera...</p>}
+                  <div className="mt-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
+                    {(form.watch("images") || []).map((url) => (
+                      <div key={url} className="relative group">
+                        <img src={url} alt="Uploaded product image" className="w-full h-24 object-cover rounded-lg" />
+                        <button type="button" onClick={() => handleRemoveImage(url)} className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="flex justify-end space-x-3">
@@ -270,7 +330,7 @@ export default function AdminPanel() {
                   <Button
                     type="submit"
                     className="bg-deep-blue hover:bg-deep-blue/80 text-white"
-                    disabled={createMutation.isPending || updateMutation.isPending}
+                    disabled={createMutation.isPending || updateMutation.isPending || isUploading}
                   >
                     <Plus className="mr-2" size={16} />
                     {editingProduct ? "Actualizar" : "Agregar"} Producto

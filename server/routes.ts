@@ -3,8 +3,37 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertProductSchema, updateProductSchema } from "@shared/schema";
 import { z } from "zod";
+import multer from "multer";
+import cloudinary from "./cloudinary";
+
+// Configure multer for in-memory file storage
+const upload = multer({ storage: multer.memoryStorage() });
+
+// Helper to convert buffer to data URI
+const bufferToDataURI = (buffer: Buffer, mimeType: string) => {
+  return `data:${mimeType};base64,${buffer.toString("base64")}`;
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Image Upload Endpoint
+  app.post("/api/upload", upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded." });
+      }
+
+      const dataUri = bufferToDataURI(req.file.buffer, req.file.mimetype);
+      const result = await cloudinary.uploader.upload(dataUri, {
+        resource_type: "auto",
+      });
+
+      res.json({ url: result.secure_url });
+    } catch (error) {
+      console.error("Error uploading to Cloudinary:", error);
+      res.status(500).json({ message: "Error uploading file." });
+    }
+  });
+
   // Get all products with optional filters
   app.get("/api/products", async (req, res) => {
     try {
