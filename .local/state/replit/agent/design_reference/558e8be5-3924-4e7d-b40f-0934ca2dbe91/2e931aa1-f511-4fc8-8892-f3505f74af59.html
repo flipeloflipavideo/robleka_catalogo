@@ -1,0 +1,698 @@
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Diseños - Mi Papelería Creativa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'coral': '#FF6B6B',
+                        'turquoise': '#4ECDC4',
+                        'sky': '#45B7D1',
+                        'mint': '#96CEB4',
+                        'sunny': '#FECA57',
+                        'magenta': '#FF9FF3',
+                        'dark-blue': '#2C3E50'
+                    },
+                    fontFamily: {
+                        'poppins': ['Poppins', 'sans-serif'],
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .masonry-grid {
+            column-count: 1;
+            column-gap: 1rem;
+        }
+        @media (min-width: 640px) {
+            .masonry-grid { column-count: 2; }
+        }
+        @media (min-width: 1024px) {
+            .masonry-grid { column-count: 3; }
+        }
+        @media (min-width: 1280px) {
+            .masonry-grid { column-count: 4; }
+        }
+        .masonry-item {
+            break-inside: avoid;
+            margin-bottom: 1rem;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-inter">
+    <!-- @COMPONENT: Header Navigation -->
+    <header class="gradient-bg shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                        <i class="fas fa-palette text-coral text-xl"></i>
+                    </div>
+                    <h1 class="text-white font-poppins font-bold text-2xl">Mi Papelería Creativa</h1>
+                </div>
+                
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="#" class="text-white hover:text-sunny transition-colors font-medium">Catálogo</a>
+                    <a href="#" class="text-white hover:text-sunny transition-colors font-medium">Categorías</a>
+                    <a href="#" class="text-white hover:text-sunny transition-colors font-medium">Favoritos</a>
+                    <button data-event="click:toggleAdminPanel" class="bg-white text-coral px-4 py-2 rounded-full font-medium hover:bg-sunny hover:text-white transition-colors">
+                        <i class="fas fa-cog mr-2"></i>Admin
+                    </button>
+                </nav>
+
+                <button class="md:hidden text-white text-xl">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header Navigation -->
+
+    <!-- @COMPONENT: Search and Filters Section -->
+    <section class="bg-white shadow-sm border-b border-gray-200">
+        <div class="container mx-auto px-4 py-6">
+            <!-- Search Bar -->
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+                <div class="relative flex-1 max-w-md">
+                    <input type="text" placeholder="Buscar diseños..." class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-coral focus:border-transparent outline-none transition-all" data-implementation="Real-time search functionality">
+                    <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    <button class="flex items-center space-x-2 bg-coral text-white px-4 py-2 rounded-full hover:bg-red-500 transition-colors">
+                        <i class="fas fa-share-alt"></i>
+                        <span>Compartir Selección</span>
+                    </button>
+                    <span class="text-gray-500 text-sm" data-bind="selectedItems.length">0 seleccionados</span>
+                </div>
+            </div>
+
+            <!-- Filter Tags -->
+            <div class="flex flex-wrap gap-3">
+                <span class="text-gray-600 font-medium mr-3">Filtros:</span>
+                
+                <!-- Category Filters -->
+                <button class="px-4 py-2 bg-coral text-white rounded-full text-sm font-medium hover:bg-red-500 transition-colors">
+                    <i class="fas fa-book mr-2"></i>Agendas
+                </button>
+                <button class="px-4 py-2 bg-turquoise text-white rounded-full text-sm font-medium hover:bg-teal-500 transition-colors">
+                    <i class="fas fa-book-open mr-2"></i>Libretas
+                </button>
+                <button class="px-4 py-2 bg-sunny text-white rounded-full text-sm font-medium hover:bg-yellow-500 transition-colors">
+                    <i class="fas fa-tags mr-2"></i>Etiquetas
+                </button>
+                
+                <!-- Style Filters -->
+                <button class="px-4 py-2 bg-sky text-white rounded-full text-sm font-medium hover:bg-blue-500 transition-colors">
+                    Minimalista
+                </button>
+                <button class="px-4 py-2 bg-mint text-white rounded-full text-sm font-medium hover:bg-green-500 transition-colors">
+                    Vintage
+                </button>
+                <button class="px-4 py-2 bg-magenta text-white rounded-full text-sm font-medium hover:bg-pink-500 transition-colors">
+                    Moderno
+                </button>
+                
+                <!-- Color Filters -->
+                <div class="flex items-center space-x-2">
+                    <span class="text-gray-500 text-sm">Colores:</span>
+                    <button class="w-8 h-8 bg-red-400 rounded-full border-2 border-white shadow-md hover:scale-110 transition-transform"></button>
+                    <button class="w-8 h-8 bg-blue-400 rounded-full border-2 border-white shadow-md hover:scale-110 transition-transform"></button>
+                    <button class="w-8 h-8 bg-green-400 rounded-full border-2 border-white shadow-md hover:scale-110 transition-transform"></button>
+                    <button class="w-8 h-8 bg-yellow-400 rounded-full border-2 border-white shadow-md hover:scale-110 transition-transform"></button>
+                    <button class="w-8 h-8 bg-purple-400 rounded-full border-2 border-white shadow-md hover:scale-110 transition-transform"></button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Search and Filters Section -->
+
+    <!-- @COMPONENT: Product Catalog Grid -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="mb-6 flex justify-between items-center">
+            <h2 class="text-2xl font-poppins font-bold text-dark-blue">Catálogo de Diseños</h2>
+            <div class="flex items-center space-x-4">
+                <span class="text-gray-600" data-bind="filteredProducts.length">124 productos encontrados</span>
+                <select class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-coral focus:border-transparent outline-none">
+                    <option>Más recientes</option>
+                    <option>Más populares</option>
+                    <option>A-Z</option>
+                    <option>Z-A</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- @MAP: products.map(product => ( -->
+        <div class="masonry-grid">
+            <!-- Product Card 1 - Agenda Floral -->
+            <div class="masonry-item">
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover cursor-pointer" data-event="click:openProductDetail">
+                    <div class="relative">
+                        <!-- Colorful notebook design with floral patterns -->
+                        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=500" alt="Agenda floral colorida" class="w-full h-auto object-cover" data-mock-image="true">
+                        <div class="absolute top-3 right-3 flex space-x-2">
+                            <button class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-coral hover:text-white transition-colors">
+                                <i class="fas fa-heart text-xs"></i>
+                            </button>
+                            <button class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-sky hover:text-white transition-colors" data-event="click:selectProduct">
+                                <i class="fas fa-check text-xs"></i>
+                            </button>
+                        </div>
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-coral text-white px-2 py-1 rounded-full text-xs font-medium">Agenda</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-poppins font-semibold text-dark-blue mb-2" data-bind="product.name">Agenda Floral Premium</h3>
+                        <p class="text-gray-600 text-sm mb-3" data-bind="product.description">Diseño elegante con patrones florales coloridos</p>
+                        <div class="flex flex-wrap gap-1 mb-3">
+                            <span class="bg-coral/10 text-coral px-2 py-1 rounded-full text-xs">Floral</span>
+                            <span class="bg-sky/10 text-sky px-2 py-1 rounded-full text-xs">Elegante</span>
+                            <span class="bg-sunny/10 text-sunny px-2 py-1 rounded-full text-xs">Premium</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-eye text-gray-400 text-sm"></i>
+                                <span class="text-gray-600 text-sm" data-bind="product.views">234</span>
+                            </div>
+                            <div class="flex space-x-1">
+                                <button class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600 transition-colors" title="WhatsApp">
+                                    <i class="fab fa-whatsapp text-xs"></i>
+                                </button>
+                                <button class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors" title="Facebook">
+                                    <i class="fab fa-facebook text-xs"></i>
+                                </button>
+                                <button class="w-8 h-8 bg-sky text-white rounded-full flex items-center justify-center hover:bg-blue-500 transition-colors" title="Telegram">
+                                    <i class="fab fa-telegram text-xs"></i>
+                                </button>
+                                <button class="w-8 h-8 bg-gray-600 text-white rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors" title="Email">
+                                    <i class="fas fa-envelope text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Card 2 - Libreta Minimalista -->
+            <div class="masonry-item">
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover cursor-pointer">
+                    <div class="relative">
+                        <!-- Minimal notebook design -->
+                        <img src="https://images.unsplash.com/photo-1531346878377-a5be20888e57?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="Libreta minimalista" class="w-full h-auto object-cover">
+                        <div class="absolute top-3 right-3 flex space-x-2">
+                            <button class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-coral hover:text-white transition-colors">
+                                <i class="fas fa-heart text-xs"></i>
+                            </button>
+                            <button class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-sky hover:text-white transition-colors">
+                                <i class="fas fa-check text-xs"></i>
+                            </button>
+                        </div>
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-turquoise text-white px-2 py-1 rounded-full text-xs font-medium">Libreta</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-poppins font-semibold text-dark-blue mb-2">Libreta Minimalista</h3>
+                        <p class="text-gray-600 text-sm mb-3">Diseño limpio y moderno para el día a día</p>
+                        <div class="flex flex-wrap gap-1 mb-3">
+                            <span class="bg-mint/10 text-mint px-2 py-1 rounded-full text-xs">Minimalista</span>
+                            <span class="bg-sky/10 text-sky px-2 py-1 rounded-full text-xs">Moderno</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-eye text-gray-400 text-sm"></i>
+                                <span class="text-gray-600 text-sm">156</span>
+                            </div>
+                            <div class="flex space-x-1">
+                                <button class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600 transition-colors">
+                                    <i class="fab fa-whatsapp text-xs"></i>
+                                </button>
+                                <button class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
+                                    <i class="fab fa-facebook text-xs"></i>
+                                </button>
+                                <button class="w-8 h-8 bg-sky text-white rounded-full flex items-center justify-center hover:bg-blue-500 transition-colors">
+                                    <i class="fab fa-telegram text-xs"></i>
+                                </button>
+                                <button class="w-8 h-8 bg-gray-600 text-white rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors">
+                                    <i class="fas fa-envelope text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Card 3 - Etiquetas Vintage -->
+            <div class="masonry-item">
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover cursor-pointer">
+                    <div class="relative">
+                        <!-- Vintage label sticker designs -->
+                        <img src="https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=600" alt="Colección de etiquetas vintage" class="w-full h-auto object-cover">
+                        <div class="absolute top-3 right-3 flex space-x-2">
+                            <button class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-coral hover:text-white transition-colors">
+                                <i class="fas fa-heart text-xs"></i>
+                            </button>
+                            <button class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-sky hover:text-white transition-colors">
+                                <i class="fas fa-check text-xs"></i>
+                            </button>
+                        </div>
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-sunny text-white px-2 py-1 rounded-full text-xs font-medium">Etiquetas</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-poppins font-semibold text-dark-blue mb-2">Pack Etiquetas Vintage</h3>
+                        <p class="text-gray-600 text-sm mb-3">Colección de 50 etiquetas con estilo retro</p>
+                        <div class="flex flex-wrap gap-1 mb-3">
+                            <span class="bg-sunny/10 text-sunny px-2 py-1 rounded-full text-xs">Vintage</span>
+                            <span class="bg-magenta/10 text-magenta px-2 py-1 rounded-full text-xs">Retro</span>
+                            <span class="bg-coral/10 text-coral px-2 py-1 rounded-full text-xs">Pack</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-eye text-gray-400 text-sm"></i>
+                                <span class="text-gray-600 text-sm">89</span>
+                            </div>
+                            <div class="flex space-x-1">
+                                <button class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600 transition-colors">
+                                    <i class="fab fa-whatsapp text-xs"></i>
+                                </button>
+                                <button class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
+                                    <i class="fab fa-facebook text-xs"></i>
+                                </button>
+                                <button class="w-8 h-8 bg-sky text-white rounded-full flex items-center justify-center hover:bg-blue-500 transition-colors">
+                                    <i class="fab fa-telegram text-xs"></i>
+                                </button>
+                                <button class="w-8 h-8 bg-gray-600 text-white rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors">
+                                    <i class="fas fa-envelope text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Card 4 - Agenda Workspace -->
+            <div class="masonry-item">
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover cursor-pointer">
+                    <div class="relative">
+                        <!-- Workspace agenda design -->
+                        <img src="https://images.unsplash.com/photo-1484704849700-f032a568e944?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=350" alt="Agenda de trabajo moderna" class="w-full h-auto object-cover">
+                        <div class="absolute top-3 right-3 flex space-x-2">
+                            <button class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-coral hover:text-white transition-colors">
+                                <i class="fas fa-heart text-xs"></i>
+                            </button>
+                            <button class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-sky hover:text-white transition-colors">
+                                <i class="fas fa-check text-xs"></i>
+                            </button>
+                        </div>
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-coral text-white px-2 py-1 rounded-full text-xs font-medium">Agenda</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-poppins font-semibold text-dark-blue mb-2">Agenda Workspace Pro</h3>
+                        <p class="text-gray-600 text-sm mb-3">Perfecta para organizar tu espacio de trabajo</p>
+                        <div class="flex flex-wrap gap-1 mb-3">
+                            <span class="bg-sky/10 text-sky px-2 py-1 rounded-full text-xs">Profesional</span>
+                            <span class="bg-mint/10 text-mint px-2 py-1 rounded-full text-xs">Organización</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-eye text-gray-400 text-sm"></i>
+                                <span class="text-gray-600 text-sm">198</span>
+                            </div>
+                            <div class="flex space-x-1">
+                                <button class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600 transition-colors">
+                                    <i class="fab fa-whatsapp text-xs"></i>
+                                </button>
+                                <button class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
+                                    <i class="fab fa-facebook text-xs"></i>
+                                </button>
+                                <button class="w-8 h-8 bg-sky text-white rounded-full flex items-center justify-center hover:bg-blue-500 transition-colors">
+                                    <i class="fab fa-telegram text-xs"></i>
+                                </button>
+                                <button class="w-8 h-8 bg-gray-600 text-white rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors">
+                                    <i class="fas fa-envelope text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Card 5 - Libreta Colorida -->
+            <div class="masonry-item">
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover cursor-pointer">
+                    <div class="relative">
+                        <!-- Colorful notebook design -->
+                        <img src="https://pixabay.com/get/gc102f91743f631b4bf8aa4afd3c4b972dbb3a6efb82fef57cd555b44a77c79ee52a23bf0521e2508ebfcdd23221f76cf8f8bf399eb27969423ea089223edc390_1280.jpg" alt="Libreta con diseños coloridos" class="w-full h-auto object-cover">
+                        <div class="absolute top-3 right-3 flex space-x-2">
+                            <button class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-coral hover:text-white transition-colors">
+                                <i class="fas fa-heart text-xs"></i>
+                            </button>
+                            <button class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-sky hover:text-white transition-colors">
+                                <i class="fas fa-check text-xs"></i>
+                            </button>
+                        </div>
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-turquoise text-white px-2 py-1 rounded-full text-xs font-medium">Libreta</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-poppins font-semibold text-dark-blue mb-2">Libreta Arcoíris</h3>
+                        <p class="text-gray-600 text-sm mb-3">Explosión de colores para creativos</p>
+                        <div class="flex flex-wrap gap-1 mb-3">
+                            <span class="bg-magenta/10 text-magenta px-2 py-1 rounded-full text-xs">Colorido</span>
+                            <span class="bg-sunny/10 text-sunny px-2 py-1 rounded-full text-xs">Creativo</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-eye text-gray-400 text-sm"></i>
+                                <span class="text-gray-600 text-sm">145</span>
+                            </div>
+                            <div class="flex space-x-1">
+                                <button class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600 transition-colors">
+                                    <i class="fab fa-whatsapp text-xs"></i>
+                                </button>
+                                <button class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
+                                    <i class="fab fa-facebook text-xs"></i>
+                                </button>
+                                <button class="w-8 h-8 bg-sky text-white rounded-full flex items-center justify-center hover:bg-blue-500 transition-colors">
+                                    <i class="fab fa-telegram text-xs"></i>
+                                </button>
+                                <button class="w-8 h-8 bg-gray-600 text-white rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors">
+                                    <i class="fas fa-envelope text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Card 6 - Etiquetas Modernas -->
+            <div class="masonry-item">
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover cursor-pointer">
+                    <div class="relative">
+                        <!-- Modern label designs -->
+                        <img src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=500" alt="Etiquetas con diseños modernos" class="w-full h-auto object-cover">
+                        <div class="absolute top-3 right-3 flex space-x-2">
+                            <button class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-coral hover:text-white transition-colors">
+                                <i class="fas fa-heart text-xs"></i>
+                            </button>
+                            <button class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-sky hover:text-white transition-colors">
+                                <i class="fas fa-check text-xs"></i>
+                            </button>
+                        </div>
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-sunny text-white px-2 py-1 rounded-full text-xs font-medium">Etiquetas</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-poppins font-semibold text-dark-blue mb-2">Etiquetas Geométricas</h3>
+                        <p class="text-gray-600 text-sm mb-3">Diseños modernos con formas geométricas</p>
+                        <div class="flex flex-wrap gap-1 mb-3">
+                            <span class="bg-sky/10 text-sky px-2 py-1 rounded-full text-xs">Moderno</span>
+                            <span class="bg-mint/10 text-mint px-2 py-1 rounded-full text-xs">Geométrico</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-eye text-gray-400 text-sm"></i>
+                                <span class="text-gray-600 text-sm">112</span>
+                            </div>
+                            <div class="flex space-x-1">
+                                <button class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600 transition-colors">
+                                    <i class="fab fa-whatsapp text-xs"></i>
+                                </button>
+                                <button class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
+                                    <i class="fab fa-facebook text-xs"></i>
+                                </button>
+                                <button class="w-8 h-8 bg-sky text-white rounded-full flex items-center justify-center hover:bg-blue-500 transition-colors">
+                                    <i class="fab fa-telegram text-xs"></i>
+                                </button>
+                                <button class="w-8 h-8 bg-gray-600 text-white rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors">
+                                    <i class="fas fa-envelope text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_MAP )) -->
+
+        <!-- Load More Button -->
+        <div class="text-center mt-12">
+            <button class="gradient-bg text-white px-8 py-3 rounded-full font-medium hover:shadow-lg transition-all transform hover:scale-105" data-event="click:loadMore">
+                <i class="fas fa-plus mr-2"></i>Cargar Más Productos
+            </button>
+        </div>
+    </main>
+    <!-- @END_COMPONENT: Product Catalog Grid -->
+
+    <!-- @COMPONENT: Admin Panel Modal -->
+    <!-- @STATE: showAdminPanel:boolean = false -->
+    <div id="adminPanel" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" data-implementation="Toggle visibility based on showAdminPanel state">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+                <div class="gradient-bg p-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-2xl font-poppins font-bold text-white">Panel de Administración</h2>
+                        <button class="text-white hover:text-sunny transition-colors" data-event="click:closeAdminPanel">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+                    <!-- Admin Tabs -->
+                    <div class="flex space-x-4 border-b border-gray-200 mb-6">
+                        <button class="px-4 py-2 font-medium text-coral border-b-2 border-coral">Productos</button>
+                        <button class="px-4 py-2 font-medium text-gray-600 hover:text-coral">Categorías</button>
+                        <button class="px-4 py-2 font-medium text-gray-600 hover:text-coral">Estadísticas</button>
+                    </div>
+
+                    <!-- Add New Product Section -->
+                    <div class="bg-gray-50 rounded-xl p-6 mb-6">
+                        <h3 class="text-lg font-poppins font-semibold text-dark-blue mb-4">Agregar Nuevo Producto</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Producto</label>
+                                <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-coral focus:border-transparent outline-none" placeholder="Ej: Agenda Floral Premium">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
+                                <select class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-coral focus:border-transparent outline-none">
+                                    <option>Agenda</option>
+                                    <option>Libreta</option>
+                                    <option>Etiquetas</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                                <textarea class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-coral focus:border-transparent outline-none" rows="3" placeholder="Descripción del producto..."></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Etiquetas</label>
+                                <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-coral focus:border-transparent outline-none" placeholder="floral, elegante, premium">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Imágenes</label>
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-coral transition-colors cursor-pointer" data-implementation="File upload functionality">
+                                    <i class="fas fa-cloud-upload-alt text-gray-400 text-2xl mb-2"></i>
+                                    <p class="text-gray-600">Arrastra imágenes aquí o haz clic para seleccionar</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end mt-4 space-x-3">
+                            <button class="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">Cancelar</button>
+                            <button class="px-4 py-2 bg-coral text-white rounded-lg hover:bg-red-500 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Agregar Producto
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Existing Products Management -->
+                    <div>
+                        <h3 class="text-lg font-poppins font-semibold text-dark-blue mb-4">Productos Existentes</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b border-gray-200">
+                                        <th class="text-left py-3 px-4 font-medium text-gray-700">Producto</th>
+                                        <th class="text-left py-3 px-4 font-medium text-gray-700">Categoría</th>
+                                        <th class="text-left py-3 px-4 font-medium text-gray-700">Vistas</th>
+                                        <th class="text-left py-3 px-4 font-medium text-gray-700">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- @MAP: adminProducts.map(product => ( -->
+                                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                        <td class="py-3 px-4">
+                                            <div class="flex items-center space-x-3">
+                                                <!-- Product thumbnail -->
+                                                <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&h=60" alt="Producto" class="w-12 h-12 rounded-lg object-cover">
+                                                <div>
+                                                    <p class="font-medium text-dark-blue" data-bind="product.name">Agenda Floral Premium</p>
+                                                    <p class="text-sm text-gray-600" data-bind="product.tags">floral, elegante, premium</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-4">
+                                            <span class="bg-coral/10 text-coral px-2 py-1 rounded-full text-xs" data-bind="product.category">Agenda</span>
+                                        </td>
+                                        <td class="py-3 px-4 text-gray-600" data-bind="product.views">234</td>
+                                        <td class="py-3 px-4">
+                                            <div class="flex space-x-2">
+                                                <button class="text-sky hover:text-blue-600 transition-colors" title="Editar">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="text-coral hover:text-red-600 transition-colors" title="Eliminar">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                                <button class="text-mint hover:text-green-600 transition-colors" title="Duplicar">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!-- @END_MAP )) -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: Admin Panel Modal -->
+
+    <!-- @COMPONENT: Product Detail Modal -->
+    <!-- @STATE: selectedProduct:object = null -->
+    <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" data-implementation="Show when product is selected">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+                <div class="relative">
+                    <!-- Product detail image -->
+                    <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400" alt="Producto detalle" class="w-full h-64 object-cover" data-bind="selectedProduct.image">
+                    <button class="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors" data-event="click:closeProductModal">
+                        <i class="fas fa-times text-gray-600"></i>
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <h2 class="text-2xl font-poppins font-bold text-dark-blue mb-3" data-bind="selectedProduct.name">Agenda Floral Premium</h2>
+                    <p class="text-gray-600 mb-4" data-bind="selectedProduct.description">Diseño elegante con patrones florales coloridos, perfecta para organizar tu día a día con estilo.</p>
+                    
+                    <div class="flex flex-wrap gap-2 mb-6">
+                        <span class="bg-coral/10 text-coral px-3 py-1 rounded-full text-sm">Floral</span>
+                        <span class="bg-sky/10 text-sky px-3 py-1 rounded-full text-sm">Elegante</span>
+                        <span class="bg-sunny/10 text-sunny px-3 py-1 rounded-full text-sm">Premium</span>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-6">
+                        <h3 class="text-lg font-poppins font-semibold text-dark-blue mb-4">Compartir este diseño</h3>
+                        <div class="flex space-x-3">
+                            <button class="flex-1 bg-green-500 text-white py-3 rounded-lg font-medium hover:bg-green-600 transition-colors flex items-center justify-center space-x-2">
+                                <i class="fab fa-whatsapp"></i>
+                                <span>WhatsApp</span>
+                            </button>
+                            <button class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
+                                <i class="fab fa-facebook"></i>
+                                <span>Facebook</span>
+                            </button>
+                            <button class="flex-1 bg-sky text-white py-3 rounded-lg font-medium hover:bg-blue-500 transition-colors flex items-center justify-center space-x-2">
+                                <i class="fab fa-telegram"></i>
+                                <span>Telegram</span>
+                            </button>
+                            <button class="flex-1 bg-gray-600 text-white py-3 rounded-lg font-medium hover:bg-gray-700 transition-colors flex items-center justify-center space-x-2">
+                                <i class="fas fa-envelope"></i>
+                                <span>Email</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: Product Detail Modal -->
+
+    <!-- Floating Action Button -->
+    <button class="fixed bottom-6 right-6 w-14 h-14 gradient-bg text-white rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-110 flex items-center justify-center z-40" title="Añadir producto rápido">
+        <i class="fas fa-plus text-xl"></i>
+    </button>
+
+    <script>
+        // TODO: Implement business logic, API calls, and state management
+        
+        // Basic interactivity for demonstration purposes only
+        (function() {
+            // Modal functionality
+            const adminButton = document.querySelector('[data-event="click:toggleAdminPanel"]');
+            const adminPanel = document.getElementById('adminPanel');
+            const closeAdminButton = document.querySelector('[data-event="click:closeAdminPanel"]');
+            
+            if (adminButton && adminPanel) {
+                adminButton.addEventListener('click', () => {
+                    adminPanel.classList.remove('hidden');
+                });
+            }
+            
+            if (closeAdminButton && adminPanel) {
+                closeAdminButton.addEventListener('click', () => {
+                    adminPanel.classList.add('hidden');
+                });
+            }
+
+            // Product cards hover effects
+            const productCards = document.querySelectorAll('.card-hover');
+            productCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Filter tag interactions
+            const filterButtons = document.querySelectorAll('section button[class*="bg-"]');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Toggle active state visualization
+                    this.style.opacity = this.style.opacity === '0.7' ? '1' : '0.7';
+                });
+            });
+
+            // Search functionality placeholder
+            const searchInput = document.querySelector('input[placeholder="Buscar diseños..."]');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    // TODO: Implement real-time search functionality
+                    console.log('Searching for:', this.value);
+                });
+            }
+        })();
+    </script>
+</body>
+</html>
