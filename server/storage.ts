@@ -1,6 +1,8 @@
-import { type Product, type InsertProduct, type UpdateProduct, type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { db } from "./db";
+import { products, users, type Product, type InsertProduct, type UpdateProduct, type User, type InsertUser } from "@shared/schema";
+import { eq, and, or, ilike, sql } from "drizzle-orm";
 
+// This is the interface that our storage classes will implement
 export interface IStorage {
   // Product methods
   getProducts(filters?: {
@@ -22,106 +24,8 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
 }
 
-export class MemStorage implements IStorage {
-  private products: Map<string, Product>;
-  private users: Map<string, User>;
-
-  constructor() {
-    this.products = new Map();
-    this.users = new Map();
-    this.initializeSampleData();
-  }
-
-  private initializeSampleData() {
-    // Create sample products based on the design
-    const sampleProducts: Product[] = [
-      {
-        id: "1",
-        name: "Agenda Floral Premium",
-        description: "Diseño elegante con patrones florales coloridos",
-        category: "agenda",
-        tags: ["floral", "elegante", "premium"],
-        images: ["https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=500"],
-        colors: ["coral", "verde", "rosa"],
-        style: "elegante",
-        views: 234,
-        featured: "true"
-      },
-      {
-        id: "2",
-        name: "Libreta Minimalista",
-        description: "Diseño limpio y moderno para el día a día",
-        category: "libreta",
-        tags: ["minimalista", "moderno"],
-        images: ["https://images.unsplash.com/photo-1531346878377-a5be20888e57?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300"],
-        colors: ["blanco", "gris", "negro"],
-        style: "minimalista",
-        views: 156,
-        featured: "false"
-      },
-      {
-        id: "3",
-        name: "Pack Etiquetas Vintage",
-        description: "Colección de 50 etiquetas con estilo retro",
-        category: "etiquetas",
-        tags: ["vintage", "retro", "pack"],
-        images: ["https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=600"],
-        colors: ["sepia", "dorado", "marrón"],
-        style: "vintage",
-        views: 89,
-        featured: "true"
-      },
-      {
-        id: "4",
-        name: "Agenda Workspace Pro",
-        description: "Perfecta para organizar tu espacio de trabajo",
-        category: "agenda",
-        tags: ["profesional", "organización"],
-        images: ["https://images.unsplash.com/photo-1484704849700-f032a568e944?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=350"],
-        colors: ["azul", "gris", "blanco"],
-        style: "profesional",
-        views: 198,
-        featured: "false"
-      },
-      {
-        id: "5",
-        name: "Libreta Arcoíris",
-        description: "Explosión de colores para creativos",
-        category: "libreta",
-        tags: ["colorido", "creativo"],
-        images: ["https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400"],
-        colors: ["rojo", "azul", "verde", "amarillo", "violeta"],
-        style: "creativo",
-        views: 145,
-        featured: "true"
-      },
-      {
-        id: "6",
-        name: "Etiquetas Geométricas",
-        description: "Diseños modernos con formas geométricas",
-        category: "etiquetas",
-        tags: ["moderno", "geométrico"],
-        images: ["https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=500"],
-        colors: ["azul", "verde", "naranja"],
-        style: "moderno",
-        views: 112,
-        featured: "false"
-      }
-    ];
-
-    sampleProducts.forEach(product => {
-      this.products.set(product.id, product);
-    });
-
-    // Create default admin user
-    const adminUser: User = {
-      id: "admin-1",
-      username: "admin",
-      password: "admin123" // In real app, this would be hashed
-    };
-    this.users.set(adminUser.id, adminUser);
-  }
-
+// DbStorage is the implementation of IStorage that uses a Drizzle for PostgreSQL
+export class DbStorage implements IStorage {
   async getProducts(filters?: {
     category?: string;
     style?: string;
@@ -129,88 +33,68 @@ export class MemStorage implements IStorage {
     tags?: string[];
     search?: string;
   }): Promise<Product[]> {
-    let products = Array.from(this.products.values());
-
+    const conditions = [];
     if (filters) {
       if (filters.category) {
-        products = products.filter(p => p.category === filters.category);
+        conditions.push(eq(products.category, filters.category));
       }
       if (filters.style) {
-        products = products.filter(p => p.style === filters.style);
+        conditions.push(eq(products.style, filters.style));
       }
-      if (filters.colors && filters.colors.length > 0) {
-        products = products.filter(p => 
-          filters.colors!.some(color => p.colors.includes(color))
-        );
-      }
-      if (filters.tags && filters.tags.length > 0) {
-        products = products.filter(p => 
-          filters.tags!.some(tag => p.tags.includes(tag))
-        );
-      }
+      // Note: Filtering by JSON array contents (colors, tags) is complex and database-specific.
+      // The current implementation will filter by category, style, and search term.
+      // A more advanced implementation might require raw SQL or specific Drizzle operators for JSON.
       if (filters.search) {
-        const searchLower = filters.search.toLowerCase();
-        products = products.filter(p => 
-          p.name.toLowerCase().includes(searchLower) ||
-          p.description.toLowerCase().includes(searchLower) ||
-          p.tags.some(tag => tag.toLowerCase().includes(searchLower))
+        const searchPattern = `%${filters.search}%`;
+        conditions.push(
+          or(
+            ilike(products.name, searchPattern),
+            ilike(products.description, searchPattern)
+          )
         );
       }
     }
 
-    return products.sort((a, b) => b.views - a.views);
+    const query = db.select().from(products).where(and(...conditions)).orderBy(sql`${products.views} desc`);
+    return await query;
   }
 
   async getProduct(id: string): Promise<Product | undefined> {
-    return this.products.get(id);
+    return await db.query.products.findFirst({ where: eq(products.id, id) });
   }
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
-    const id = randomUUID();
-    const product: Product = {
-      id,
-      views: 0,
-      ...insertProduct,
-    };
-    this.products.set(id, product);
+    const [product] = await db.insert(products).values(insertProduct).returning();
     return product;
   }
 
   async updateProduct(id: string, updateProduct: UpdateProduct): Promise<Product | undefined> {
-    const existing = this.products.get(id);
-    if (!existing) return undefined;
-
-    const updated = { ...existing, ...updateProduct };
-    this.products.set(id, updated);
-    return updated;
+    const [product] = await db.update(products).set(updateProduct).where(eq(products.id, id)).returning();
+    return product;
   }
 
   async deleteProduct(id: string): Promise<boolean> {
-    return this.products.delete(id);
+    const result = await db.delete(products).where(eq(products.id, id));
+    return result.rowCount > 0;
   }
 
   async incrementProductViews(id: string): Promise<void> {
-    const product = this.products.get(id);
-    if (product) {
-      product.views += 1;
-      this.products.set(id, product);
-    }
+    await db.update(products).set({ views: sql`${products.views} + 1` }).where(eq(products.id, id));
   }
 
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    return await db.query.users.findFirst({ where: eq(users.id, id) });
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.username === username);
+    return await db.query.users.findFirst({ where: eq(users.username, username) });
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 }
 
-export const storage = new MemStorage();
+// Export a single instance of the DbStorage
+export const storage = new DbStorage();
