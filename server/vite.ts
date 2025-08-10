@@ -68,18 +68,21 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(import.meta.dirname, "public");
+  // After build, the server is in /dist and the client in /dist/public
+  const publicPath = path.resolve(import.meta.dirname, "public");
 
-  if (!fs.existsSync(distPath)) {
-    throw new Error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`,
-    );
+  if (!fs.existsSync(publicPath)) {
+    // This can happen if the build process changes.
+    // Log an error and continue, Express will handle the 404.
+    console.error(`Static assets directory not found: ${publicPath}`);
   }
 
-  app.use(express.static(distPath));
+  // Serve static files like CSS, JS, images
+  app.use(express.static(publicPath));
 
-  // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+  // For any other GET request that doesn't start with /api, serve index.html.
+  // This is the key for Single Page Application (SPA) routing to work.
+  app.get(/^(?!\/api).*$/, (req, res) => {
+    res.sendFile(path.resolve(publicPath, "index.html"));
   });
 }
